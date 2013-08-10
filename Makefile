@@ -49,7 +49,7 @@ RMVAR	 =	RM
 #
 CC       ?=     gcc
 VERBOSE  ?=     0
-DEBUG    ?=     1
+DEBUG    ?=     0
 
 #
 # conditional constructs
@@ -107,7 +107,7 @@ ifeq ($(QUIET),1)
 endif
 
 $(EXECFILE): $(OBJFILES)
-	$(Q)$(CC) $(OBJFILES) -o $@
+	$(Q)$(CC) $(CFLAGS) $(OBJFILES) -o $@
 ifeq ($(QUIET),1)
 	$(Q)$(ECHO) $(LDVAR) $(OBJNAMES) \-\> $(EXECNAME)
 endif
