@@ -91,7 +91,7 @@ u64_t u64f_fibonacci_seq( u32_t u32v_n )
   return u64v_sum;
 }
 
-s32_t s32f_fibonacci( int argc, char *argv[] )
+s32_t s32f_fibonacci_app( int argc, char *argv[] )
 {
   s32_t s32v_ret    = 0;
   u32_t u32v_n      = 0;
@@ -155,7 +155,7 @@ s32_t s32f_fibonacci( int argc, char *argv[] )
 int main( int argc, char *argv[] )
 {
   int retval = 0;
-  retval = s32f_fibonacci( argc, argv );
+  retval = s32f_fibonacci_app( argc, argv );
   return retval;
 }
 

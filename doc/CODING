@@ -1,0 +1,161 @@
+CODING GUIDELINES
+
+Created: 10-Aug-2013
+Amended: 10-Aug-2013
+
+LITERALS
+1.    Integers shall be written either in decimal or in hexadecimal
+      unless absolutely necessary to use octal or binary.
+2.    Integers can be preceded by a sign bit.
+3.    All Integers shall use 'L' or 'UL' or 'LL' or 'ULL' for type
+      adherence.
+4.    All SINGLE characters shall be enclosed in single quotes. e.g.,
+      'a','t','\0'
+5.    All strings shall be enclosed in double-quotes "<string>". e.g.,
+      "String Literal"
+6.    Strings on the same line can be broken up as "<string_1>"
+      "<string_2>" only if necessary. e.g.,
+      "String1" STR_MACRO "String2"
+7.    Floating point literals may use exponential form as necessary.
+
+TYPES
+1.    Basic types shall be avoided except where inevitable.
+2.    POSIX types shall be used only where necessary.
+3.    Types shall be declared in 'ltypes.h' if they are common.
+       - these types shall be of the form of the following regexp:
+          [usdf][(8|16|32|64)][(f)?ptr]?[_t]
+	     - example: u8_t, s32_t, f32_t
+	  u: unsigned, s: signed, d: double, f: float
+	  8|16|32|64 are atomic variable size in bits
+	  ptr:  shall be used if the type is a pointer
+	  fptr: shall be used if the type is a function pointer
+4.    Types may be declared in other headers if they are specific.
+       - these types may be of the form of the following regexp:
+          [(a-z)(0-9)]+[_t] 
+	     - example: lcache_t, ltime_t
+5.    Type names shall have no more than 64 characters.
+      They shall be as short as possible to facilitate usage.
+
+CONSTANTS
+1.    All constants shall be defined as macros. 
+2.    The const classifier shall be used only if unavoidable.
+3.    Names of all constants shall be of the form of this regexp:
+        [TYPENAME][C_][^(A-Z)(0-9)_]+
+        example: U64C_ZERO, U64C_FIB_0
+	where TYPENAME is the preamble regexp of a type in upper-case
+
+FUNCTION MACROS
+1.    Function Macros shall use fixed arguments only.
+2.    The GNU extended '##' (paste) operator shall _NOT_ be used.
+3.    Function Macros expanding to a line of code or multiple lines of
+      code shall be duly enclosed in do { <code> } while(0) blocks.
+
+VARIABLE NAMING
+1.    Variable names shall indicate their types as follows:
+      - [typename][_]?[v][_][(a-z)(0-9)]+
+        example: u32v_idx, lcache_v_ptr, ltime_v_1
+2.    Variable names shall never use camel case or upper case.
+3.    Variable names shall have no more than 64 characters.
+
+CODE STRUCTURE
+1.    All functions shall have a single entry point.
+2.    All functions shall have a single exit point.
+       - only one 'return' statement shall be present per function.
+       - to achieve this do { } while(0) constructs may be employed.
+       - goto shall be avoided unless its use is inevitable.
+3.    All functions shall return a value.
+4.    The return value of all functions shall be checked.
+       - even if the function returns a constant value, the return
+       - value shall not be discarded.
+5.    Functions shall be coded with ANSI C 2011 regulations as:
+       - <type> <function_name>(<parameter_list>)
+         {
+           <block(s) of code>
+           <return statement>
+         }
+       example:
+         u32_t u32f_map_index( u32v_idx ) 
+	 {
+	   u32_t u32v_result = 0;
+           <some code>
+	   return u32v_result;
+         }
+
+6.    All other structures within functions shall be coded as:
+       - <structure> ?(<attributes-if-needed>)? {
+           <block(s) of code>
+         }
+       example:
+          if( u32v_idx > U32C_LIMIT ) {
+	    u32v_result = u32f_operation( u32v_idx );
+	  }
+
+7.    Comments shall be present in separate lines and not alongside
+      code unless inevitable.
+8.    Only C style single line comments /* comment */
+      or multiline comments in Doxygen/JavaDoc format:
+      /**
+       * comment line 1
+       * comment line 2 
+       */
+      shall be used.
+      - Nested comments shall _NOT_ be used.
+9.    All functions shall have comments heading them in
+      Doxygen/JavaDoc format. for example:
+      /**
+       * @function	u32f_map_index
+       * @brief		maps and limits array indices
+       * @param		u32v_idx	index
+       *
+       * @return	u32_t with the index subject to limits
+       */
+      Any blank line within the comment shall be properly format.
+10.   No code shall be commented out using
+       #if 0 
+       <block> 
+       #endif
+      instead, the proper usage is to have:
+       #ifdef MACRO_EXPLAINING_CODEPATH 
+       <block>
+       #endif
+11.   Any block of code that is not thread-safe shall be indicated so
+      by a comment.
+12.   Functions shall optimally contain between 12 and 25 effective
+      lines of code, notwithstanding comments and blank lines.
+13.   All variables shall be declared at the entry point.
+14.   No variable shall be declared inside an optional code-path
+      unless the function containing itself is entirely defined in
+      that optional code-path.
+15.   Constants other than 0 and -1 shall be declared as macros unless
+      their usage is inevitable.
+16.   Whenever the coding guidelines are exceeded, that exception must
+      have a comment line explaining it. This rule cannot be exceeded.
+17.   Code shall adhere to POSIX guidelines when not in full adherence
+      with the coding guidelines. 
+18.   No getc, getch, gets, scanf shall be used to procure console
+      input. A console library like ncurses must be used instead.
+19.   Temporary files shall use mkstemp(3) or mkostemp(3) as
+      necessary. No arbitrary names shall be used.
+
+OPERATOR ADVISORY
+
+1.    Unary operators shall be avoided unless inevitable.
+2.    The ternary operator shall be used only if necessary.
+3.    Operators like +=, *= shall be avoided unless inevitable.
+4.    Bitwise operators shall not be used along-side logical
+      operators. 
+5.    Exceptions like multiple assignment operators or assignment
+      operators in combination with comparison operators shall be used
+      only if inevitable where the alternate increases effective lines
+      of code significantly.
+      e.g. 
+      if( (u32v_status = u32f_check(u32v_arg)) == -1 ) 
+      may be used. however,
+      u32v_a = u32v_b = u32v_c; must be avoided.
+6.    if comparison LVALUES are always constants, then that shall be
+      followed throughout the code. (e.g. if( NULL == u32fptr_func ))
+      but this shall not be reversed in part of the code.
+7.    operators shall not be used exclusively from macros, e.g.,
+      #define EQU	=
+      is to be avoided.
+
