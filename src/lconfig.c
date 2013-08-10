@@ -40,6 +40,12 @@ s32_t s32f_parse_args( int argc, char *argv[], u32_t* u32p_num )
       case CHRC_ARG_RECURSE:
 	s32v_ret |= INTC_FLAG_RECURSE;
 	break;
+      case CHRC_ARG_CACHE:
+	s32v_ret |= INTC_FLAG_CACHE;
+	break;
+      case CHRC_ARG_STAMP:
+	s32v_ret |= INTC_FLAG_STAMP;
+	break;
       case CHRC_ARG_HELP:
 	s32v_ret |= INTC_FLAG_HELP;
 	break;

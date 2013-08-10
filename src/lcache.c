@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include <ltypes.h>
+#include <lconst.h>
 #include <lcache.h>
 
 s32_t s32f_lcache_init(  s32_t     s32v_lcache_cnt, u32_t u32v_lcache_flags, 
@@ -24,26 +25,32 @@ s32_t s32f_lcache_init(  s32_t     s32v_lcache_cnt, u32_t u32v_lcache_flags,
       break;
     }
 
+    /* align along system word size (or quad-word size) 32-bit */
     u32v_sz = LCACHE_SZ_ALIGN( ((sizeof(u64_t)*s32v_lcache_cnt)) );
+    /* allocate memory for elements */
     if( (lcache_ptr->u64p_element = malloc( u32v_sz )) == 0 ) {
       s32v_ret = -1;
       break;
     }
 
+    /* align along system word size (or quad word size) 32-bit */
     u32v_sz = LCACHE_SZ_ALIGN( ((sizeof(u32_t)*s32v_lcache_cnt)) );
+    /* allocate memory for hash references */
     if( (lcache_ptr->u32p_hash    = malloc( u32v_sz )) == 0 ) {
       s32v_ret = -1;
       free( lcache_ptr->u64p_element );
       break;
     }
 
+    /* initialize allocated memory [explicitly avoiding calloc] */
     lcache_ptr->s32v_cnt   = s32v_lcache_cnt;
     lcache_ptr->s32v_last  = 0;
     lcache_ptr->u8v_filled = 0;
 
+    /* loop: initialize all elements to zero to avoid junking */
     while( s32v_idx < lcache_ptr->s32v_cnt ) {
-      lcache_ptr->u32p_hash[ s32v_idx ] = 0;
-      lcache_ptr->u64p_element[ s32v_idx ] = 0ULL;
+      lcache_ptr->u32p_hash[ s32v_idx ]    = 0;
+      lcache_ptr->u64p_element[ s32v_idx ] = U64C_ZERO;
       s32v_idx++;
     }
 
@@ -53,6 +60,33 @@ s32_t s32f_lcache_init(  s32_t     s32v_lcache_cnt, u32_t u32v_lcache_flags,
   return s32v_ret;
 }
 
+s32_t s32f_lcache_free( lcache_t* lcache_ptr )
+{
+  s32_t s32v_ret = 0;
+
+  do {
+    if( lcache_ptr == 0 ) {
+      s32v_ret = -1;
+      break;
+    }
+
+    if( (lcache_ptr->u32p_hash    == 0) ||
+	(lcache_ptr->u64p_element == 0) ) {
+      s32v_ret = -1;
+      break;
+    }
+
+    /* WARNING: this code must be atomic to be threadsafe */
+    free( lcache_ptr->u32p_hash );
+    free( lcache_ptr->u64p_element );
+    lcache_ptr->s32v_cnt   = 0;
+    lcache_ptr->s32v_last  = 0;
+    lcache_ptr->u8v_filled = 0;
+
+  } while(0);
+
+  return s32v_ret;
+}
 
 s32_t s32f_lcache_add( lcache_t* lcache_ptr, u64_t u64v_value, 
 		       u32_t u32v_hash )
@@ -97,7 +131,7 @@ s32_t s32f_lcache_add( lcache_t* lcache_ptr, u64_t u64v_value,
 
 u64_t u64f_lcache_find( lcache_t* lcache_ptr, u32_t u32v_hash )
 {
-  u64_t u64v_ret = 0ULL;
+  u64_t u64v_ret = U64C_ZERO;
   s32_t s32v_idx = 0;
 
   do {
@@ -105,6 +139,8 @@ u64_t u64f_lcache_find( lcache_t* lcache_ptr, u32_t u32v_hash )
       break;
     }
 
+    /* linear search as this may be ordered
+     * or a set of two ordered arrays */
     while( s32v_idx < lcache_ptr->s32v_cnt ) {
       if( lcache_ptr->u32p_hash[ s32v_idx ] == u32v_hash ) {
 	u64v_ret = lcache_ptr->u64p_element[ s32v_idx ];

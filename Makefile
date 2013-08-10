@@ -3,6 +3,9 @@
 #
 #	08-Aug-2013
 #	Sunil Beta	<betasam@gmail.com>
+#
+#       To find out which targets to use:
+#        make help
 ##
 
 #
@@ -28,9 +31,9 @@ DOCPATH  :=	doc
 
 # CAVEAT! order of files here may affect linking
 EXECNAME :=     fibonacci
-SRCNAMES :=	test.c lcache.c lmessage.c lconfig.c
+SRCNAMES :=	test.c lcache.c lmessage.c lconfig.c ltime.c
 
-CFLAGSX  :=     -Wall
+CFLAGSX  :=     -Wall -O3
 SRCEXT   :=     .c
 OBJEXT   :=     .o
 
@@ -46,7 +49,7 @@ RMVAR	 =	RM
 #
 CC       ?=     gcc
 VERBOSE  ?=     0
-DEBUG    ?=     0
+DEBUG    ?=     1
 
 #
 # conditional constructs
@@ -87,6 +90,10 @@ SRCFILES :=	$(addprefix $(TOPPATH)/$(SRCPATH)/, $(SRCNAMES))
 OBJFILES :=     $(addprefix $(TOPPATH)/$(OBJPATH)/, $(OBJNAMES))
 EXECFILE :=     $(addprefix $(TOPPATH)/$(BINPATH)/, $(EXECNAME))
 
+#
+# target rules
+#
+
 all: compile 
 
 compile: $(OBJFILES)
@@ -102,7 +109,7 @@ endif
 $(EXECFILE): $(OBJFILES)
 	$(Q)$(CC) $(OBJFILES) -o $@
 ifeq ($(QUIET),1)
-	$(Q)$(ECHO) $(LDVAR) $(OBJNAMES) \> $(EXECNAME)
+	$(Q)$(ECHO) $(LDVAR) $(OBJNAMES) \-\> $(EXECNAME)
 endif
 
 clean: 
@@ -113,7 +120,24 @@ ifeq ($(QUIET),1)
 	$(Q)$(ECHO) $(RMVAR) $(EXECNAME)
 endif
 
-.PHONY: clean
+help:
+	@$(ECHO)   "   make [options] [target]"
+	@$(ECHO)   "       all:        only compiles files"
+	@$(ECHO)   "       binary:     compiles and links binary [fibonacci]"
+	@$(ECHO)   "       clean:      cleans artefacts from previous build"
+	@$(ECHO)       
+	@$(ECHO)   "       VERBOSE=1   provides verbose information"
+	@$(ECHO)   "       DEBUG=1     enables debugging symbols"
+	@$(ECHO)   "       QUIET=1     suppresses verbosity, default"
+	@$(ECHO)
+	@$(ECHO)   "  examples:"
+	@$(ECHO)   "       $$ make clean && make binary"
+	@$(ECHO)   "             builds bin/fibonacci"
+	@$(ECHO)   "       $$ make VERBOSE=1 binary"
+	@$(ECHO)   "             same as above, but verbose"
+	@$(ECHO)
+
+.PHONY: clean help
 
 #
 ## Makefile
