@@ -1,0 +1,13 @@
+README
+
+This is a quick README to confirm that this template appliation is to
+serve as a scaffold to implement simple algorithms (or extend it
+further) to use the source for static code analysis.
+
+At the time of writing this file, the application has been used to
+compare the performance of gcc-4.5 and clang-3.2 (binary and bitcode
+interpreted versions). The results of comparisons would be included
+here to help application maintainers select the best static analysers
+and testing, verification tools.
+
+Created: 11-Aug-2013

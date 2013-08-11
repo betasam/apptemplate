@@ -1,5 +1,5 @@
 /**
- * @file        test.c
+ * @file        fibonacci_app.c
  * @brief       basic C test source
  */
 
@@ -9,6 +9,8 @@
 #include <lcache.h>
 #include <lconfig.h>
 #include <ltime.h>
+
+#include <fibonacci_app.h>
 
 u64_t u64f_fibonacci_recursive( u32_t u32v_n )
 {
@@ -152,13 +154,6 @@ s32_t s32f_fibonacci_app( int argc, char *argv[] )
   return s32v_ret;
 }
 
-int main( int argc, char *argv[] )
-{
-  int retval = 0;
-  retval = s32f_fibonacci_app( argc, argv );
-  return retval;
-}
-
 /* 
- * end:         test.c
+ * end:         fibonacci_app.c
  **/

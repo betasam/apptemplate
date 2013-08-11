@@ -31,7 +31,7 @@ DOCPATH  :=	doc
 
 # CAVEAT! order of files here may affect linking
 EXECNAME :=     fibonacci
-SRCNAMES :=	test.c lcache.c lmessage.c lconfig.c ltime.c
+SRCNAMES :=	main.c fibonacci_app.c lcache.c lmessage.c lconfig.c ltime.c
 
 CFLAGSX  :=     -Wall -O3
 SRCEXT   :=     .c
