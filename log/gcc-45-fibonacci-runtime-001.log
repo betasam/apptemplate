@@ -1,0 +1,7 @@
+$ ./bin/fibonacci -n 33 -rt
+
+info: stamp[1] = 160937448
+info: using recursive algorithm for result ...
+info: stamp[2] = 160982580
+info: requested: 33, computed-result: 3524578 
+info: time taken: 45132 uSecs
