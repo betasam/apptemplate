@@ -10,4 +10,57 @@ interpreted versions). The results of comparisons would be included
 here to help application maintainers select the best static analysers
 and testing, verification tools.
 
+BUILDING
+
+you may use the following simple recipe/targets to build.
+the code needs a C Compiler (cc) that is POSIX compliant.
+
+$ make clean && make binary
+
+EXECUTING
+
+A test program which has a very simple fibonacci application
+(fibonacci_app.c) can be used to measure performance on an
+environment. 
+
+You can use it as:
+$ fibonacci -n <unsigned integer> [-r [-c]] [-t]
+        -r      reverts to a recursive algorithm (slowest)
+        -c      uses caching with the recursive algorithm
+        -t      shows time-stamps and actual time consumed
+                to the microsecond
+
+STATIC ANALYSIS
+
+in order to perform static analysis you may first want to check if the
+build works with clang-llvm too.
+
+$ CC=clang make binary
+This has been tested only with clang-3.2 for the moment.
+
+The following would run scan-build and scan-view. You need to have
+them installed. The exact analyzer to be used is specified explicitly
+here, though it is only required if you set up multiple analyzers.
+
+$ scan-build --use-analyzer=/opt/llvm/bin/clang -analyze-headers
+             -stats -k -v -v -v -V make binary
+NOTE: The above is a one-liner
+
+Currently both clang and gcc support optimization levels -O[0-3]
+
+However documents on the net suggest clang has an -O4, but that turned
+out to be -O3 -flto (which is the best way.)
+
+PERFORMANCE ANALYSIS
+
+[TODO]
+At present no scripts or make targets are included to perform static
+analysis. Reports will be added once these are included as part of the
+scaffold to aid in analyzing generated assembly and run-time profiles.
+
 Created: 11-Aug-2013
+Amended: 12-Aug-2013
+
+Author:         Beta <betasam@gmail.com>
+Maintainer:     Beta <betasam@gmail.com>
+
