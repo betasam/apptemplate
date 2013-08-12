@@ -1,6 +1,6 @@
 /**
- * @file	lmessage.c
- * @brief	message printing mechanism
+ * @file        lmessage.c
+ * @brief       message printing mechanism
  */
 
 #include <stdio.h>
@@ -9,15 +9,19 @@
 
 #include <lmessage.h>
 
+/* global stream pointer to { stdout, stderr } */
 FILE *out_stream;
 
-static void stream_message( char *prefix, char *format, va_list *arg_list )
+/* print a message to a selected stream */
+static void stream_message( char *prefix, char *format, 
+                            va_list *arg_list )
 {
   fprintf(out_stream, "%s: ", prefix);
   vfprintf(out_stream, format, (*arg_list) );
   return;
 }
 
+/* stream a user message to STDOUT */
 void umessage( char *format, ... )
 {
   va_list arg_list;
@@ -27,6 +31,7 @@ void umessage( char *format, ... )
   va_end( arg_list );
 }
 
+/* stream a warning message to STDOUT */
 void uwarning( char *format, ... )
 {
   va_list arg_list;
@@ -36,6 +41,7 @@ void uwarning( char *format, ... )
   va_end( arg_list );
 }
 
+/* stream an error message to STDERR */
 void uerror( char *format, ... )
 {
   va_list arg_list;
@@ -45,7 +51,7 @@ void uerror( char *format, ... )
   va_end( arg_list );
 }
 
-
 /*
+ * file:        lmessage.c
  * no code after this
  **/
