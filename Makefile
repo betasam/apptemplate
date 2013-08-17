@@ -16,6 +16,13 @@ COMPILE  :=     -c
 RM       :=     rm
 RMFLAGS  :=     -f
 ECHO     :=     echo
+ETAGS    :=     etags
+ETAGARG  :=     -a
+
+#
+# command dependency list
+#
+CMD_DEPS :=	$(CC) $(ETAGS)
 
 #
 # PATHS
@@ -32,10 +39,12 @@ DOCPATH  :=	doc
 # CAVEAT! order of files here may affect linking
 EXECNAME :=     fibonacci
 SRCNAMES :=	main.c apps.c fibonacci_app.c lcache.c lmessage.c lconfig.c ltime.c
+TAGNAMES :=     TAGS
 
 CFLAGSX  :=     -Wall -O3
 SRCEXT   :=     .c
 OBJEXT   :=     .o
+HDREXT   :=     .h
 
 #
 # pretty print
@@ -43,6 +52,7 @@ OBJEXT   :=     .o
 CCVAR    =	CC
 LDVAR	 =	LD
 RMVAR	 =	RM
+TAGVAR   =      TAGS
 
 #
 # weak defaults/assertions
@@ -50,6 +60,7 @@ RMVAR	 =	RM
 CC       ?=     gcc
 VERBOSE  ?=     0
 DEBUG    ?=     0
+DEPLIST  ?=
 
 #
 # conditional constructs
@@ -71,6 +82,7 @@ endif
 
 ifeq ($(DEBUG),1)
 CFLAGSX += -g
+DEPLIST += -DDEBUG
 endif
 
 #
@@ -83,7 +95,7 @@ TOPPATH  :=     $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST
 SINCLUDE :=
 LINCLUDE :=     $(addprefix -I$(TOPPATH), $(INCPATH))
 INCLUDE  :=     $(SINCLUDE) $(LINCLUDE)
-CFLAGS   :=	$(CFLAGSX) $(INCLUDE)
+CFLAGS   :=	$(CFLAGSX) $(INCLUDE) $(DEPLIST)
 
 OBJNAMES :=     $(patsubst  %$(SRCEXT),%$(OBJEXT),  $(SRCNAMES))
 SRCFILES :=	$(addprefix $(TOPPATH)/$(SRCPATH)/, $(SRCNAMES))
@@ -100,6 +112,14 @@ compile: $(OBJFILES)
 
 binary: $(EXECFILE)
 
+tags: TAGS
+
+TAGS: $(SRCFILES)
+	$(Q)$(ETAGS) $(ETAGARG) $(SRCFILES) $(patsubst %$(SRCEXT),%$(HDREXT), $(subst $(SRCPATH),$(INCPATH), $(SRCFILES)))
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(TAGVAR) \*$(SRCEXT) \*$(HDREXT)
+endif
+
 $(OBJFILES): $(SRCFILES)
 	$(Q)$(CC) $(CFLAGS) $(COMPILE) $(patsubst %$(OBJEXT),%$(SRCEXT), $(subst $(OBJPATH),$(SRCPATH), $@)) -o $@
 ifeq ($(QUIET),1)
@@ -113,10 +133,10 @@ ifeq ($(QUIET),1)
 endif
 
 clean: 
-	$(Q)$(RM) $(RMFLAGS) $(OBJFILES)
+	$(Q)$(RM) $(RMFLAGS) $(OBJFILES) $(TAGNAMES)
 	$(Q)$(RM) $(RMFLAGS) $(EXECFILE)
 ifeq ($(QUIET),1)
-	$(Q)$(ECHO) $(RMVAR) $(OBJNAMES)
+	$(Q)$(ECHO) $(RMVAR) $(OBJNAMES) $(TAGNAMES)
 	$(Q)$(ECHO) $(RMVAR) $(EXECNAME)
 endif
 
@@ -125,6 +145,7 @@ help:
 	@$(ECHO)   "       all:        only compiles files"
 	@$(ECHO)   "       binary:     compiles and links binary [fibonacci]"
 	@$(ECHO)   "       clean:      cleans artefacts from previous build"
+	@$(ECHO)   "       tags:       creates emacs [exuberant] TAGS file"
 	@$(ECHO)       
 	@$(ECHO)   "       VERBOSE=1   provides verbose information"
 	@$(ECHO)   "       DEBUG=1     enables debugging symbols"

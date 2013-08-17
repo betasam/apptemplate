@@ -7,6 +7,7 @@
 
 #include <fibonacci_app.h>
 #include <apps.h>
+#include <main.h>
 
 /**
  * @function    main
