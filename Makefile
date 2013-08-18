@@ -18,6 +18,8 @@ RMFLAGS  :=     -f
 ECHO     :=     echo
 ETAGS    :=     etags
 ETAGARG  :=     -a
+MKDIR    :=     mkdir
+MKDARGS  :=     -p
 
 #
 # command dependency list
@@ -26,15 +28,17 @@ CMD_DEPS :=	$(CC) $(ETAGS)
 
 #
 # PATHS
-# first two paths contain source
+# first three paths contain source
 # rest of the paths get output
 #
 INCPATH  :=     include
 SRCPATH  :=     src
+DOCPATH  :=	doc
 
 OBJPATH  :=     obj
 BINPATH  :=     bin
-DOCPATH  :=	doc
+
+OUTPATHS := $(OBJPATH) $(BINPATH)
 
 # CAVEAT! order of files here may affect linking
 EXECNAME :=     fibonacci
@@ -53,6 +57,7 @@ CCVAR    =	CC
 LDVAR	 =	LD
 RMVAR	 =	RM
 TAGVAR   =      TAGS
+MKDVAR   =      MKDIR
 
 #
 # weak defaults/assertions
@@ -106,7 +111,15 @@ EXECFILE :=     $(addprefix $(TOPPATH)/$(BINPATH)/, $(EXECNAME))
 # target rules
 #
 
-all: compile 
+all: dircheck compile 
+
+dircheck: $(OUTPATHS)
+
+$(OUTPATHS):
+	$(Q)$(MKDIR) $(MKDARGS) $@
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(MKDVAR) $@
+endif
 
 compile: $(OBJFILES)
 
@@ -131,6 +144,10 @@ $(EXECFILE): $(OBJFILES)
 ifeq ($(QUIET),1)
 	$(Q)$(ECHO) $(LDVAR) $(OBJNAMES) \-\> $(EXECNAME)
 endif
+
+mrproper: distclean
+
+distclean: clean
 
 clean: 
 	$(Q)$(RM) $(RMFLAGS) $(OBJFILES) $(TAGNAMES)
@@ -158,7 +175,7 @@ help:
 	@$(ECHO)   "             same as above, but verbose"
 	@$(ECHO)
 
-.PHONY: clean help
+.PHONY: clean help distclean mrproper tags dircheck
 
 #
 ## Makefile
