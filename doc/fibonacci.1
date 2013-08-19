@@ -1,0 +1,46 @@
+.TH fibonacci 1 "20 August 2013" GNU/Linux "User Applications"
+.SH NAME
+fibonacci \- compute fibonacci(n)
+.SH SYNOPSIS
+\fBfibonacci\fP -n \fIinteger\fP [ -r [ -c ]] [ -t ]
+.SH DESCRIPTION
+\fBfibonacci\fP computes fibonacci(n) where n is a positive
+integer. This is an example POSIX compliant application.
+.SS Options
+.TP
+\fB-n \fIinteger\fR
+Option to specify \fBn\fP for which fibonacci(\fBn\fP) will be
+calculated.
+.TP
+\fB-r\fP
+Use recursive algorithm.
+.TP
+\fB-c\fP
+Use cache to speed up recursive algorithm.
+.TP
+\fB-t\fP
+Print timestamps accurate to microseconds.
+.SH EXAMPLES
+.TP
+fibonacci -n 33 -t
+.IP
+compute fibonacci(33) using sequential algorithm, show timestamps.
+.TP
+fibonacci -n 33 -rt
+.IP
+compute fibonacci(33) using recursive algorithm, show timestamps.
+.TP
+fibonacci -n 33 -rct
+.IP
+compute fibonacci(33) using recursive algorithm with cache, show
+timestamps.
+.SH AUTHOR
+.TP
+Beta <betasam at gmail dot com>
+.SH "SEE ALSO"
+.BR gettimeofday (2),
+.BR time (1)
+.SH LIMITS
+This program uses \fB64-bit\fP precision only. Hence \fBn\fP is
+limited to 47. Timestamps rely on \fBgettimeofday\fP(2) for
+accuracy. They give better insight than using \fBtime\fP(1).

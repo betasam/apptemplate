@@ -10,7 +10,7 @@
 #
 
 THIS="./build.sh"
-BUILD="build:"
+BUILD="build-apptemplate:"
 BINDIR=bin
 BINARY=fibonacci
 LOGDIR=log
@@ -39,6 +39,16 @@ function f_setup_topdir {
     fi
     echo -e "${BUILD} using TOPDIR=${TOPDIR} ..."
 
+}
+
+function f_enter_topdir {
+    echo -e "${BUILD} entering TOPDIR=${TOPDIR} ..."
+    pushd ${TOPDIR}
+}
+
+function f_leave_topdir {
+    echo -e "${BUILD} leaving  TOPDIR=${TOPDIR} ..."
+    popd
 }
 
 function f_setup_clean {
@@ -76,7 +86,7 @@ function f_check_deps {
     if [ "${EXITNOW}" == "1" ]; then
 	echo -e "${BUILD} please correct dependencies, exiting!"
 	echo
-	popd
+	f_leave_topdir
 	exit 1
     else
 	echo -e "${BUILD} dependencies verified."
@@ -124,7 +134,8 @@ function f_clean_subdirs {
     if [ "${CLEANONLY}" == "1" ]; then
 	echo -e "${BUILD} done cleaning, exiting as requested."
 	echo
-	popd
+	f_clean_targets
+	f_leave_topdir
 	exit 0
     fi
 
@@ -176,7 +187,7 @@ f_setup_topdir
 
 f_setup_clean "$1"
 
-pushd ${TOPDIR}
+f_enter_topdir
 
 f_check_deps
 
@@ -196,7 +207,7 @@ f_disas_targets ${CLANG}
 
 f_diffx_targets
 
-popd
+f_leave_topdir
 
 # end: build.sh
 ##

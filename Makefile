@@ -15,6 +15,8 @@ GCC      :=	gcc
 COMPILE  :=     -c
 RM       :=     rm
 RMFLAGS  :=     -f
+LD       :=     ld
+LDFLAGS  :=	
 ECHO     :=     echo
 ETAGS    :=     etags
 ETAGARG  :=     -a
@@ -140,7 +142,7 @@ ifeq ($(QUIET),1)
 endif
 
 $(EXECFILE): $(OBJFILES)
-	$(Q)$(CC) $(CFLAGS) $(OBJFILES) -o $@
+	$(Q)$(CC) $(LDFLAGS) $(OBJFILES) -o $@
 ifeq ($(QUIET),1)
 	$(Q)$(ECHO) $(LDVAR) $(OBJNAMES) \-\> $(EXECNAME)
 endif
