@@ -29,6 +29,43 @@ DIFFARGS="-NrU 3"
 OBJDUMP=objdump
 DISARGS="-d -S"
 CLEANONLY=0
+HELPONLY=0
+CMD_OPTS=`getopt -o ch -n 'build.sh' -- "$@"`
+
+
+function f_parse_cmdline {
+
+    eval set -- "$CMD_OPTS"
+
+    while true ; do
+        case "$1" in
+            -c) export CLEANONLY=1 ; shift ;;
+            -h) export HELPONLY=1 ; shift ;;
+            --) shift ; break ;;
+            *) echo "${BUILD} Oops! Internal error!" ; exit 1 ;;
+        esac
+    done
+
+
+}
+
+function f_print_usage {
+
+    if [ "${HELPONLY}" == "0" ]; then
+	return
+    fi
+
+    PROGNAME=`echo ${THIS} | sed "s/^\.\///"`
+
+    echo "usage: ${PROGNAME} [-c] [-h]"
+    echo
+    echo "       -c      cleans up only, does not build."
+    echo "       -h      prints this help."
+    echo
+
+    exit 0
+
+}
 
 function f_setup_topdir {
 
@@ -49,16 +86,6 @@ function f_enter_topdir {
 function f_leave_topdir {
     echo -e "${BUILD} leaving  TOPDIR=${TOPDIR} ..."
     popd
-}
-
-function f_setup_clean {
-    EXTENT="$1"
-    if [ "$EXTENT" == "" ]; then
-	EXTENT=0
-    else
-	EXTENT=1
-	export CLEANONLY=1
-    fi
 }
 
 function f_check_deps {
@@ -183,9 +210,11 @@ function f_diffx_targets {
 # main execution begins here.
 #
 
+f_parse_cmdline
+
 f_setup_topdir
 
-f_setup_clean "$1"
+f_print_usage
 
 f_enter_topdir
 
