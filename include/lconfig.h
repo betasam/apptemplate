@@ -20,6 +20,6 @@
 
 #define CHK_FLAG(n,f)           ((n & f) ? 1 : 0)
 
-s32_t s32f_parse_args( int argc, char *argv[], u32_t* u32p_num );
+s32_t s32f_parse_args(int argc, char *argv[], u32_t * u32p_num);
 
-#endif  /* _LCONFIG_H */
+#endif /* _LCONFIG_H */

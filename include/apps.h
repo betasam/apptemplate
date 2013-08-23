@@ -9,16 +9,15 @@
 
 typedef struct _app_s {
 
-  s32_t s32v_state;
-  s32_t (*main)(int argc, char *argv[]);
-  s32_t s32v_return;
+    s32_t s32v_state;
+     s32_t(*main) (int argc, char *argv[]);
+    s32_t s32v_return;
 
 } app_t;
 
-s32_t s32f_app_init( app_t* app_p_ref, 
-                     s32_t (*main)(int argc, char *argv[]));
+s32_t s32f_app_init(app_t * app_p_ref,
+                    s32_t(*main) (int argc, char *argv[]));
 
-s32_t s32f_app_exec( app_t *app_p_ref, int argc, char *argv[]);
+s32_t s32f_app_exec(app_t * app_p_ref, int argc, char *argv[]);
 
-
-#endif  /* _APPS_H */
+#endif /* _APPS_H */

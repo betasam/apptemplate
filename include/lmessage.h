@@ -5,8 +5,8 @@
 #define STRC_WARNING    "warn"
 #define STRC_ERROR      "ERROR"
 
-void umessage( char *format, ... );
-void uwarning( char *format, ... );
-void uerror( char *format, ... );
+void umessage(char *format, ...);
+void uwarning(char *format, ...);
+void uerror(char *format, ...);
 
-#endif  /* _LMESSAGE_H */
+#endif /* _LMESSAGE_H */

@@ -17,23 +17,24 @@
  * @param	main_fp		function pointer to app main(...)
  * @return	-1 on failure, 0 on success
  */
-s32_t s32f_app_init( app_t* app_p_ref, 
-		     s32_t (*main_fp)(int argc, char *argv[])) {
+s32_t s32f_app_init(app_t * app_p_ref,
+                    s32_t(*main_fp) (int argc, char *argv[]))
+{
 
-  s32_t s32v_ret = 0;
+    s32_t s32v_ret = 0;
 
-  if( (app_p_ref == 0) || (main_fp == 0) ) {
-    
-    s32v_ret = -1;
+    if ((app_p_ref == 0) || (main_fp == 0)) {
 
-  } else {
+        s32v_ret = -1;
 
-    app_p_ref->s32v_state = APP_STATE_INIT;
-    app_p_ref->main = main_fp;
-    app_p_ref->s32v_return = 0;
-  }
+    } else {
 
-  return s32v_ret;
+        app_p_ref->s32v_state = APP_STATE_INIT;
+        app_p_ref->main = main_fp;
+        app_p_ref->s32v_return = 0;
+    }
+
+    return s32v_ret;
 }
 
 /**
@@ -44,30 +45,29 @@ s32_t s32f_app_init( app_t* app_p_ref,
  * @param	argv		POSIX compliant argv(char**)
  * @return	-1 on failure, 0 on success
  */
-s32_t s32f_app_exec( app_t *app_p_ref, int argc, char *argv[] )
+s32_t s32f_app_exec(app_t * app_p_ref, int argc, char *argv[])
 {
-  s32_t s32v_ret = 0;
+    s32_t s32v_ret = 0;
 
-  if( app_p_ref == 0 ) {
-    
-    s32v_ret = -1;
+    if (app_p_ref == 0) {
 
-  } else {
+        s32v_ret = -1;
 
-    app_p_ref->s32v_state = (APP_STATE_RUNNING | APP_STATE_NORMAL);
-    s32v_ret = app_p_ref->main( argc, argv );
-    app_p_ref->s32v_state = (APP_STATE_FINISHED);
-    if( s32v_ret != 0 ) {
-      app_p_ref->s32v_state |= APP_STATE_EXCEPTION;
     } else {
-      app_p_ref->s32v_state |= APP_STATE_NORMAL;
+
+        app_p_ref->s32v_state = (APP_STATE_RUNNING | APP_STATE_NORMAL);
+        s32v_ret = app_p_ref->main(argc, argv);
+        app_p_ref->s32v_state = (APP_STATE_FINISHED);
+        if (s32v_ret != 0) {
+            app_p_ref->s32v_state |= APP_STATE_EXCEPTION;
+        } else {
+            app_p_ref->s32v_state |= APP_STATE_NORMAL;
+        }
+
     }
 
-  }
-
-  return s32v_ret;
+    return s32v_ret;
 }
-
 
 /*
  * end:		apps.c

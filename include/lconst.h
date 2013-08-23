@@ -9,4 +9,4 @@
 #define U32C_MSECS_PER_SEC      1000
 #define U32C_USECS_PER_SEC      1000000
 
-#endif  /* _LCONST_H */
+#endif /* _LCONST_H */
