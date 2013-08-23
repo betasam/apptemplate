@@ -1,0 +1,13 @@
+Source: apptemplate
+Maintainer: Sunil Beta <betasam@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.1
+Build-Depends: debhelper (>= 8)
+
+Package: apptemplate
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: application template
+ provides a template for app developers
+ and facilitates easy static analysis.
