@@ -1,0 +1,12 @@
+Section: misc
+Priority: optional
+Standards-Version: 3.9.1
+
+Package: apptemplate-depends
+Version: 0.1
+Maintainer: Sunil Beta <betasam@gmail.com>
+Depends: clang, llvm
+Architecture: all
+Description: apptemplate package dependencies
+ Packages that resolve dependencies for apptemplate and apptemplate
+ derived applications. 

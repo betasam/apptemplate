@@ -22,11 +22,15 @@ ETAGS    :=     etags
 ETAGARG  :=     -a
 MKDIR    :=     mkdir
 MKDARGS  :=     -p
+EQUIVS   :=     equivs-build
+PKGDSUFF :=     depends
+PKGDARCH :=     all
+PKGDEXT  :=     deb
 
 #
 # command dependency list
 #
-CMD_DEPS :=	$(CC) $(ETAGS)
+CMD_DEPS :=	$(CC) $(ETAGS) $(EQUIVS)
 
 #
 # PATHS
@@ -36,6 +40,7 @@ CMD_DEPS :=	$(CC) $(ETAGS)
 INCPATH  :=     include
 SRCPATH  :=     src
 DOCPATH  :=	doc
+ETCPATH  :=     etc
 
 OBJPATH  :=     obj
 BINPATH  :=     bin
@@ -43,9 +48,11 @@ BINPATH  :=     bin
 OUTPATHS := $(OBJPATH) $(BINPATH)
 
 # CAVEAT! order of files here may affect linking
+PACKAGE  :=     apptemplate
 EXECNAME :=     fibonacci
 SRCNAMES :=	main.c apps.c fibonacci_app.c lcache.c lmessage.c lconfig.c ltime.c
 TAGNAMES :=     TAGS
+VERSION  :=     0.1
 
 CFLAGSX  :=     -Wall -O3
 SRCEXT   :=     .c
@@ -108,12 +115,14 @@ OBJNAMES :=     $(patsubst  %$(SRCEXT),%$(OBJEXT),  $(SRCNAMES))
 SRCFILES :=	$(addprefix $(TOPPATH)/$(SRCPATH)/, $(SRCNAMES))
 OBJFILES :=     $(addprefix $(TOPPATH)/$(OBJPATH)/, $(OBJNAMES))
 EXECFILE :=     $(addprefix $(TOPPATH)/$(BINPATH)/, $(EXECNAME))
+DEPSFILE :=     $(TOPPATH)/$(ETCPATH)/$(PACKAGE)-$(PKGDSUFF)
+PKGDFILE :=     $(PACKAGE)-$(PKGDSUFF)_$(VERSION)_$(PKGDARCH).$(PKGDEXT)
 
 #
 # target rules
 #
 
-all: dircheck compile 
+all: dircheck binary
 
 dircheck: $(OUTPATHS)
 
@@ -149,7 +158,18 @@ endif
 
 mrproper: distclean
 
-distclean: clean
+distclean: clean package-clean
+
+package: package-depends
+
+package-depends: $(DEPSFILE)
+	$(EQUIVS) $(DEPSFILE)
+
+package-clean:
+	$(Q)$(RM) $(PKGDFILE)
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(RMVAR) $(PKGDFILE)
+endif
 
 clean: 
 	$(Q)$(RM) $(RMFLAGS) $(OBJFILES) $(TAGNAMES)
@@ -161,10 +181,12 @@ endif
 
 help:
 	@$(ECHO)   "   make [options] [target]"
-	@$(ECHO)   "       all:        only compiles files"
+	@$(ECHO)   "       all:        build target:binary"
+	@$(ECHO)   "       compile:    only compiles files"
 	@$(ECHO)   "       binary:     compiles and links binary [fibonacci]"
 	@$(ECHO)   "       clean:      cleans artefacts from previous build"
 	@$(ECHO)   "       tags:       creates emacs [exuberant] TAGS file"
+	@$(ECHO)   "       package:    build debian packages"
 	@$(ECHO)       
 	@$(ECHO)   "       VERBOSE=1   provides verbose information"
 	@$(ECHO)   "       DEBUG=1     enables debugging symbols"
@@ -177,7 +199,7 @@ help:
 	@$(ECHO)   "             same as above, but verbose"
 	@$(ECHO)
 
-.PHONY: clean help distclean mrproper tags dircheck
+.PHONY: clean help distclean mrproper tags dircheck package-clean
 
 #
 ## Makefile
