@@ -15,6 +15,8 @@ GCC      :=	gcc
 COMPILE  :=     -c
 RM       :=     rm
 RMFLAGS  :=     -f
+RMDIR    :=     rm
+RMDFLAGS :=     -rf
 LD       :=     ld
 LDFLAGS  :=	
 ECHO     :=     echo
@@ -26,6 +28,14 @@ EQUIVS   :=     equivs-build
 PKGDSUFF :=     depends
 PKGDARCH :=     all
 PKGDEXT  :=     deb
+PKGDTARG :=     package-depends
+TAR      :=     tar
+TARCFLAGS:=     czvf
+TARXFLAGS:=     xzvf
+TAREXCL  :=     --exclude-vcs --exclude=release --exclude=*.o
+TARZEXT  :=     tar.gz
+ORIGEXT  :=     orig
+DEBUILD  :=     debuild -us -uc
 
 #
 # command dependency list
@@ -41,18 +51,26 @@ INCPATH  :=     include
 SRCPATH  :=     src
 DOCPATH  :=	doc
 ETCPATH  :=     etc
+SCRPATH  :=     scripts
 
 OBJPATH  :=     obj
 BINPATH  :=     bin
+RELPATH  :=     release
+DSTPATH  :=     dist
 
-OUTPATHS := $(OBJPATH) $(BINPATH)
+#
+# These paths may not be in the repository
+# and are created for outputs if not found.
+#
+OUTPATHS := $(OBJPATH) $(BINPATH) $(RELPATH)
 
 # CAVEAT! order of files here may affect linking
 PACKAGE  :=     apptemplate
 EXECNAME :=     fibonacci
 SRCNAMES :=	main.c apps.c fibonacci_app.c lcache.c lmessage.c lconfig.c ltime.c
 TAGNAMES :=     TAGS
-VERSION  :=     0.1
+VERSION  :=     $(shell git tag | sed "s/[a-z]//")
+RELEASE  :=     1
 
 CFLAGSX  :=     -Wall -O3
 SRCEXT   :=     .c
@@ -79,6 +97,11 @@ DEPLIST  ?=
 #
 # conditional constructs
 #
+
+ifeq ("$(VERSION)","")
+VERSION  :=     0.1
+endif
+
 ifeq ($(V),1)
 VERBOSE  :=	1
 endif
@@ -117,6 +140,8 @@ OBJFILES :=     $(addprefix $(TOPPATH)/$(OBJPATH)/, $(OBJNAMES))
 EXECFILE :=     $(addprefix $(TOPPATH)/$(BINPATH)/, $(EXECNAME))
 DEPSFILE :=     $(TOPPATH)/$(ETCPATH)/$(PACKAGE)-$(PKGDSUFF)
 PKGDFILE :=     $(PACKAGE)-$(PKGDSUFF)_$(VERSION)_$(PKGDARCH).$(PKGDEXT)
+RTARBALL :=     $(PACKAGE)_$(VERSION).$(ORIGEXT).$(TARZEXT)
+RPKGPATH :=     $(PACKAGE)_$(VERSION)-$(RELEASE)
 
 #
 # target rules
@@ -159,14 +184,38 @@ endif
 mrproper: distclean
 
 distclean: clean package-clean
+	if [ -d $(TOPPATH)/$(DSTPATH) ]; then $(RMDIR) $(RMDFLAGS) $(TOPPATH)/$(DSTPATH); fi
 
-package: package-depends
+src-archive: dircheck
+	$(Q)$(TAR) $(TARCFLAGS) $(TOPPATH)/$(RELPATH)/$(RTARBALL) $(TAREXCL) .
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(TARCMD) $(TOPPATH)/$(RELPATH)/$(RTARBALL)
+endif
 
-package-depends: $(DEPSFILE)
+clean-archive:
+	$(Q)if [ -d $(TOPPATH)/$(RELPATH) ]; then $(RMDIR) $(RMDFLAGS) $(TOPPATH)/$(RELPATH); fi
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(RMVAR) $(TOPPATH)/$(RELPATH)
+endif
+
+dist: package
+	$(MKDIR) $(MKDARGS) $(TOPPATH)/$(DSTPATH)
+	mv $(TOPPATH)/$(RELPATH)/$(RPKGPATH)/*.$(PKGDEXT) $(TOPPATH)/$(DSTPATH)
+
+package: package-build
+
+package-build: src-archive
+	$(MKDIR) $(MKDARGS) $(TOPPATH)/$(RELPATH)/$(RPKGPATH)
+	cd $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(TAR) $(TARXFLAGS) $(TOPPATH)/$(RELPATH)/$(RTARBALL)
+	cd $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(DEBUILD)
+	cd $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(MAKE) $(PKGDTARG)
+	mv $(TOPPATH)/$(RELPATH)/$(RPKGPATH)/*.$(PKGDEXT) $(TOPPATH)/$(RELPATH)
+
+$(PKGDTARG): $(DEPSFILE)
 	$(EQUIVS) $(DEPSFILE)
 
 package-clean:
-	$(Q)$(RM) $(PKGDFILE)
+	$(Q)if [ -f $(TOPDIR)/$(PKGDFILE) ]; then $(RM) $(RMFLAGS) $(PKGDFILE); fi
 ifeq ($(QUIET),1)
 	$(Q)$(ECHO) $(RMVAR) $(PKGDFILE)
 endif
@@ -187,6 +236,7 @@ help:
 	@$(ECHO)   "       clean:      cleans artefacts from previous build"
 	@$(ECHO)   "       tags:       creates emacs [exuberant] TAGS file"
 	@$(ECHO)   "       package:    build debian packages"
+	@$(ECHO)   "       dist:       create distributable package files."
 	@$(ECHO)       
 	@$(ECHO)   "       VERBOSE=1   provides verbose information"
 	@$(ECHO)   "       DEBUG=1     enables debugging symbols"
@@ -198,8 +248,10 @@ help:
 	@$(ECHO)   "       $$ make VERBOSE=1 binary"
 	@$(ECHO)   "             same as above, but verbose"
 	@$(ECHO)
+	@$(ECHO)   "  source version: $(VERSION)"
+	@$(ECHO)
 
-.PHONY: clean help distclean mrproper tags dircheck package-clean
+.PHONY: clean help distclean mrproper tags dircheck package-clean src-archive clean-archive
 
 #
 ## Makefile
