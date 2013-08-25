@@ -183,7 +183,7 @@ endif
 
 mrproper: distclean
 
-distclean: clean package-clean
+distclean: clean package-clean clean-archive
 	if [ -d $(TOPPATH)/$(DSTPATH) ]; then $(RMDIR) $(RMDFLAGS) $(TOPPATH)/$(DSTPATH); fi
 
 src-archive: dircheck
