@@ -200,7 +200,7 @@ endif
 
 dist: package
 	$(MKDIR) $(MKDARGS) $(TOPPATH)/$(DSTPATH)
-	mv $(TOPPATH)/$(RELPATH)/$(RPKGPATH)/*.$(PKGDEXT) $(TOPPATH)/$(DSTPATH)
+	mv $(TOPPATH)/$(RELPATH)/*.$(PKGDEXT) $(TOPPATH)/$(DSTPATH)
 
 package: package-build
 
