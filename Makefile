@@ -1,11 +1,15 @@
 ##
-#	Makefile
+#       Makefile
 #
-#	08-Aug-2013
-#	Sunil Beta	<betasam@gmail.com>
+#       Created         08-Aug-2013
+#       Sunil Beta      <betasam@gmail.com>
+#
+#       Amended         29-Aug-2013     
 #
 #       To find out which targets to use:
 #        make help
+#       Before editing this file, read each rule or use:
+#        info make
 ##
 
 #
@@ -17,6 +21,8 @@ RM       :=     rm
 RMFLAGS  :=     -f
 RMDIR    :=     rm
 RMDFLAGS :=     -rf
+MV       :=     mv
+CD       :=     cd
 LD       :=     ld
 LDFLAGS  :=	
 ECHO     :=     echo
@@ -65,6 +71,7 @@ DSTPATH  :=     dist
 OUTPATHS := $(OBJPATH) $(BINPATH) $(RELPATH)
 
 # CAVEAT! order of files here may affect linking
+#    HINT: undef-symb def-symb
 PACKAGE  :=     apptemplate
 EXECNAME :=     fibonacci
 SRCNAMES :=	main.c apps.c fibonacci_app.c lcache.c lmessage.c lconfig.c ltime.c
@@ -184,7 +191,10 @@ endif
 mrproper: distclean
 
 distclean: clean package-clean clean-archive
-	if [ -d $(TOPPATH)/$(DSTPATH) ]; then $(RMDIR) $(RMDFLAGS) $(TOPPATH)/$(DSTPATH); fi
+	$(Q)if [ -d $(TOPPATH)/$(DSTPATH) ]; then $(RMDIR) $(RMDFLAGS) $(TOPPATH)/$(DSTPATH); fi
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(RMVAR) $(TOPPATH)/$(DSTPATH)
+endif
 
 src-archive: dircheck
 	$(Q)$(TAR) $(TARCFLAGS) $(TOPPATH)/$(RELPATH)/$(RTARBALL) $(TAREXCL) .
@@ -199,17 +209,21 @@ ifeq ($(QUIET),1)
 endif
 
 dist: package
-	$(MKDIR) $(MKDARGS) $(TOPPATH)/$(DSTPATH)
-	mv $(TOPPATH)/$(RELPATH)/*.$(PKGDEXT) $(TOPPATH)/$(DSTPATH)
+	$(Q)$(MKDIR) $(MKDARGS) $(TOPPATH)/$(DSTPATH)
+	$(Q)$(MV) $(TOPPATH)/$(RELPATH)/*.$(PKGDEXT) $(TOPPATH)/$(DSTPATH)
+ifeq ($(QUIET),1)
+	$(Q)$(ECHO) $(MKDIR) $(TOPPATH)/$(DSTPATH)
+	$(Q)$(ECHO) $(MV) $(TOPPATH)/$(RELPATH)/*.$(PKGDEXT) $(TOPPATH)/$(DSTPATH)
+endif
 
 package: package-build
 
 package-build: src-archive
 	$(MKDIR) $(MKDARGS) $(TOPPATH)/$(RELPATH)/$(RPKGPATH)
-	cd $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(TAR) $(TARXFLAGS) $(TOPPATH)/$(RELPATH)/$(RTARBALL)
-	cd $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(DEBUILD)
-	cd $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(MAKE) $(PKGDTARG)
-	mv $(TOPPATH)/$(RELPATH)/$(RPKGPATH)/*.$(PKGDEXT) $(TOPPATH)/$(RELPATH)
+	$(CD) $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(TAR) $(TARXFLAGS) $(TOPPATH)/$(RELPATH)/$(RTARBALL)
+	$(CD) $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(DEBUILD)
+	$(CD) $(TOPPATH)/$(RELPATH)/$(RPKGPATH) && $(MAKE) $(PKGDTARG)
+	$(MV) $(TOPPATH)/$(RELPATH)/$(RPKGPATH)/*.$(PKGDEXT) $(TOPPATH)/$(RELPATH)
 
 $(PKGDTARG): $(DEPSFILE)
 	$(EQUIVS) $(DEPSFILE)
@@ -237,6 +251,7 @@ help:
 	@$(ECHO)   "       tags:       creates emacs [exuberant] TAGS file"
 	@$(ECHO)   "       package:    build debian packages"
 	@$(ECHO)   "       dist:       create distributable package files."
+	@$(ECHO)   "       distclean:  remove distributable package files."
 	@$(ECHO)       
 	@$(ECHO)   "       VERBOSE=1   provides verbose information"
 	@$(ECHO)   "       DEBUG=1     enables debugging symbols"
@@ -246,12 +261,14 @@ help:
 	@$(ECHO)   "       $$ make clean && make binary"
 	@$(ECHO)   "             builds bin/fibonacci"
 	@$(ECHO)   "       $$ make VERBOSE=1 binary"
-	@$(ECHO)   "             same as above, but verbose"
+	@$(ECHO)   "             same as above, but verbose;"
+	@$(ECHO)   "       $$ make dist"
+	@$(ECHO)   "             builds binary, makes debian packages."
 	@$(ECHO)
 	@$(ECHO)   "  source version: $(VERSION)"
 	@$(ECHO)
 
-.PHONY: clean help distclean mrproper tags dircheck package-clean src-archive clean-archive
+.PHONY: clean help dist distclean mrproper tags dircheck package-clean src-archive clean-archive
 
 #
 ## Makefile
