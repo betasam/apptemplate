@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 8)
 
 Package: apptemplate
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: ${shlibs:Depends}, ${misc:Depends}
 Description: application template
  provides a template for app developers
  and facilitates easy static analysis.

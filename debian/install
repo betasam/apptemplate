@@ -1,0 +1,2 @@
+bin/fibonacci usr/bin
+doc/fibonacci.1 usr/share/man/man1
